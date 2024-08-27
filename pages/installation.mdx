@@ -1,0 +1,58 @@
+# Installation
+
+As discussed in the [Introduction](/), the Neon OSS Starter Kit comes in 2 different flavors: **With Prism** and **With Drizzle**. You can choose the one that best fits your project requirements.
+
+## With Prisma
+
+To get scaffolded with the Neon OSS Starter Kit with Prisma, you can run the following command:
+
+```bash
+npx @rohittcodes/neon-osskit@latest prisma
+```
+
+This command will create a new directory called `my-neon-osskit-app` and scaffold the Neon OSS Starter Kit with Prisma in it.
+
+## With Drizzle
+
+To get scaffolded with the Neon OSS Starter Kit with Drizzle, you can run the following command:
+
+```bash
+npx @rohittcodes/neon-osskit@latest drizzle
+```
+
+This command will create a new directory called `my-neon-osskit-app` and scaffold the Neon OSS Starter Kit with Drizzle in it.
+
+## Further Steps
+
+Once you have scaffolded the Neon OSS Starter Kit, you can navigate to the project directory and start the development server by running the following command:
+
+but before that, make sure you have included the required environment variables in the `.env` file. here is an example of the `.env` file (you can find an `.env.example` file in the root directory of your project):
+
+> Note: Make sure to replace the placeholders with your actual values.
+
+```bash
+DATABASE_URL="your-neon-database-url"
+
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-clerk-publishable-key
+CLERK_SECRET_KEY=your-clerk-secret-key
+
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+```
+
+Before running the development server, make sure to generate the Prisma client or Drizzle-ORM client. You can follow the instructions in the [Advanced](/advanced) section to learn more about generating the ORM client.
+
+```bash
+cd my-neon-osskit-app
+npm run dev
+```
+
+This will start the development server and you can access your project at [http://localhost:3000](http://localhost:3000).
+
+That's it! You have successfully installed the Neon OSS Starter Kit on your machine. You can now start building your project using the built-in components and features provided by the starter kit.
+
+## ORM Specifics
+
+Head over to the [Advanced](/advanced) section to learn more about the ORM specifics. i.e., how to use Drizzle-ORM and Prisma ORM with the Neon OSS Starter Kit.
+
+If you have any questions or issues, feel free to reach out to us on the official discord server for [Neon OOS kit by rohittcodes](https://discord.gg).

@@ -1,0 +1,16 @@
+{
+  "index": "Introduction",
+  "why-neon-osskit": "Why Neon OSSKit",
+  "installation": "Installation",
+  "advanced": "Advanced",
+  "about": {
+    "title": "About",
+    "type": "page"
+  },
+  "contact": {
+    "title": "Contact ↗",
+    "type": "page",
+    "href": "https://x.com/rohittcodes",
+    "newWindow": true
+  }
+}
