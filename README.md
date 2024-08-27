@@ -4,6 +4,8 @@ Welcome to the official documentation for the Neon OSS Starter Kit. This documen
 
 [**Live Documentation**](https://neon-osskit.vercel.app)
 
+![landing page](https://github.com/user-attachments/assets/2ab48727-6fa2-4bc6-9a29-dbad98d3e9a2)
+
 ## Contributing
 
 If you would like to contribute to the documentation, please follow the steps below:
