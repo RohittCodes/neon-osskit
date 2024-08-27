@@ -1,0 +1,112 @@
+# Authenticate Neon Postgres application users with Clerk
+
+Clerk is a modern authentication and user management platform that provides a simple way to add authentication to your applications. It offers a set of tools to manage user accounts, authentication, and authorization. Clerk provides a user-friendly interface for users to sign up, sign in, and manage their accounts.
+
+In this guide, you will learn how to authenticate Neon Postgres application users with Clerk using the Neon OSS Kit. The kit comes with Clerk pre-configured.
+
+Let's get started by understanding the basics of Clerk and how to use it with Neon.
+
+## Setting up Clerk
+
+To get started with Clerk, you need to create an account on the Clerk website and create a new project. Once you have created a project, you will get a Publishable Key and a Secret Key. You will need these keys to authenticate users with Clerk. Store these keys in your `.env` file.
+
+```bash
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your-clerk-publishable-key
+CLERK_SECRET_KEY=your-clerk-secret-key
+```
+
+## Integrating Clerk with Neon
+
+The Neon OSS Kit comes with Clerk pre-configured, but doesn't include a way to push the user data to the database, but you can easily extend the kit to add this functionality.
+
+Update the application schema to include the user model (the example is for drizzle, but you can do the same for prisma by adding prisma specific fields):
+
+```typescript
+// src/lib/schema.ts
+import { pgTable, text, timestamp } from 'drizzle-orm/pg-core'
+
+export const UserMessages = pgTable('user_messages', {
+  user_id: text('user_id').primaryKey().notNull(),
+  createTs: timestamp('create_ts').defaultNow().notNull(),
+  message: text('message').notNull(),
+})
+```
+
+Now, you can migrate the database schema to include the new user model:
+
+```bash
+npm run migrate
+```
+
+Next, you can create server actions to handle user authentication with Clerk:
+
+```typescript
+// src/actions/user.ts
+'use server'
+
+import { auth } from '@clerk/nextjs/server'
+import { UserMessages } from './db/schema'
+import { db } from './db'
+import { eq } from 'drizzle-orm'
+
+export async function createUserMessage(formData: FormData) {
+  const { userId } = auth()
+  if (!userId) throw new Error('User not found')
+
+  const message = formData.get('message') as string
+  await db.insert(UserMessages).values({
+    user_id: user.id,
+    message,
+  })
+}
+
+export async function deleteUserMessage() {
+  const { userId } = auth()
+  if (!userId) throw new Error('User not found')
+
+  await db.delete(UserMessages).where(eq(UserMessages.user_id, user.id))
+}
+```
+
+Now, you can create a page to handle user authentication and push the user data to the database, when the user tries to perform an action:
+
+```tsx
+// pages/index.tsx
+import { createUserMessage, deleteUserMessage } from './actions'
+import { db } from './db'
+import { auth } from '@clerk/nextjs/server'
+
+export default async function Home() {
+  const { userId } = auth()
+  if (!userId) throw new Error('User not found')
+  const existingMessage = db.query.UserMessages.findFirst({
+    where: (messages, { eq }) => eq(messages.user_id, userId),
+  })
+
+  return (
+    <main>
+      <h1>Neon + Clerk Example</h1>
+      {existingMessage ? (
+        <div>
+          <p>{existingMessage.message}</p>
+          <form action={deleteUserMessage}>
+            <button>Delete Message</button>
+          </form>
+        </div>
+      ) : (
+        <form action={createUserMessage}>
+          <input type="text" name="message" placeholder="Enter a message" />
+          <button>Save Message</button>
+        </form>
+      )}
+    </main>
+  )
+}
+```
+
+Now, you can run the application and test the user authentication with Clerk.
+
+## Conclusion
+
+In this guide, you learned how to authenticate Neon Postgres application users with Clerk using the Neon OSS Kit. You also learned how to extend the kit to push the user data to the database when the user tries to perform an action. Clerk provides a simple way to add authentication to your applications and manage user accounts. You can use Clerk to authenticate users and manage user data in your Neon Postgres applications.
+Learn more from the official [Clerk documentation](https://clerk.com/docs/integrations/databases/neon) and the [Neon documentation](https://neon.tech/docs/guides/auth-clerk).

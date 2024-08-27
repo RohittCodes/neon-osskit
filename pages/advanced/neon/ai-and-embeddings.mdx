@@ -1,0 +1,86 @@
+# AI and Embeddings
+
+In this section, we will explore how to use embeddings with Neon as Vector databases. We will also learn how to train embeddings on categorical data and use them in machine learning models.
+
+## What are Embeddings?
+
+Embeddings are a way to represent categorical data in a continuous space. They are used in many machine learning models, such as collaborative filtering, natural language processing, and more. Embeddings are learned from the data and capture the relationships between different categories.
+
+## What are Vector Databases?
+
+Vector databases are databases that store and query vector data. They are used to store embeddings and perform similarity searches on the embeddings. Vector databases are used in many applications, such as recommendation systems, search engines, and more.
+
+A clear explanation of the embeddings and vector databases is given in the [Neon documentation](https://neon.tech/docs/ai/ai-concepts).
+
+## How to use Embeddings with Neon?
+
+Neon provides a way to use embeddings with Vector databases. You can train embeddings on categorical data using Neon's embedding module and store the embeddings in a Vector database. You can then query the embeddings to find similar items or perform other operations.
+
+Here is an example of how to use embeddings with Neon:
+
+create a new file called `vectorStore.ts` in the `lib` directory of your Neon OSS project and add the following code:
+```typescript
+import { OpenAIEmbedding, Settings } from 'llamaindex'
+import { PGVectorStore } from 'llamaindex/storage/vectorStore/PGVectorStore'
+
+Settings.embedModel = new OpenAIEmbedding({
+  dimensions: 512,
+  model: 'text-embedding-3-small',
+})
+
+const vectorStore = new PGVectorStore({
+  dimensions: 512,
+  connectionString: process.env.POSTGRES_URL,
+})
+
+export default vectorStore
+```
+
+In this code, we are using the `OpenAIEmbedding` model to train embeddings on text data. We are then storing the embeddings in a PostgreSQL database using the `PGVectorStore` class.
+
+You can then use the `vectorStore` object to store and query embeddings in your Neon project.
+
+Example of how to store embeddings in the Vector database by calling the `vectorStore` in the `app/api/chat.ts` file:
+```typescript
+import { NextApiRequest } from 'next'
+import vectorStore from '@/lib/vectorStore'
+import { ContextChatEngine, Ollama, Settings, VectorStoreIndex } from 'llamaindex'
+
+interface Message {
+  role: 'user' | 'assistant' | 'system' | 'memory'
+  content: string
+}
+
+if (process.env.OLLAMA_ENDPOINT) Settings.llm = new Ollama({ model: 'llama3', config: { host: process.env.OLLAMA_ENDPOINT } })
+
+export async function POST(request: NextRequest) {
+  const encoder = new TextEncoder()
+  const { messages = [] } = (await request.json()) as { messages: Message[] }
+  const userMessages = messages.filter((i) => i.role === 'user')
+  const query = userMessages[userMessages.length - 1].content
+  const index = await VectorStoreIndex.fromVectorStore(vectorStore)
+  const retriever = index.asRetriever()
+  const chatEngine = new ContextChatEngine({ retriever })
+  const customReadable = new ReadableStream({
+    async start(controller) {
+      const stream = await chatEngine.chat({ message: query, chatHistory: messages, stream: true })
+      for await (const chunk of stream) {
+        controller.enqueue(encoder.encode(chunk.response))
+      }
+      controller.close()
+    },
+  })
+  return new Response(customReadable, {
+    headers: {
+      Connection: 'keep-alive',
+      'Content-Encoding': 'none',
+      'Cache-Control': 'no-cache, no-transform',
+      'Content-Type': 'text/plain; charset=utf-8',
+    },
+  })
+}
+```
+
+In this code, we are using the `VectorStoreIndex` class to create an index from the `vectorStore` object. We are then using the index to retrieve similar items from the Vector database based on the user query.
+
+This is just a simple example of how to use embeddings with Neon and is a part of the AI starter apps provided by [Neon](https://github.com/neondatabase/examples/blob/main/ai). You can explore more examples and use cases in the Neon documentation.

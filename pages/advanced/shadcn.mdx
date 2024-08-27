@@ -1,0 +1,37 @@
+# Shadcn/ui
+
+Shadcn/ui is a a collection of re-usable components that you can copy and paste into your apps. It is built with Tailwind CSS, React, TypeScript, and Radix UI.
+
+## Installation
+
+The OSS Kit comes with Shadcn/ui pre-configured, so you don't need to install it separately. You can start using Shadcn/ui components in your Neon application right away.
+
+## Adding Shadcn/ui components
+
+To add Shadcn/ui components to your Neon OSS Kit application, you can run the following command:
+
+```bash
+npx shadcn-ui@latest add [component-name]
+```
+
+Replace `[component-name]` with the name of the component you want to add. For example, to add a button component, you can run:
+
+```bash
+npx shadcn-ui@latest add button
+```
+
+This will add the button component to your Neon application. You can now use the button component in your components like this:
+
+```tsx
+import { Button } from '@/components/button'
+
+export default function Home() {
+  return (
+    <div>
+      <Button>Click me</Button>
+    </div>
+  )
+}
+```
+
+You can find a list of available Shadcn/ui components in the [official documentation](https://ui.shadcn.com/docs).

@@ -1,0 +1,130 @@
+# Drizzle ORM
+
+Drizzle ORM is a headless ORM that provides a type-safe API for interacting with the database. You can use Drizzle ORM with Neon Serverless Functions to send queries to the database. In this guide, you will learn how to use Drizzle ORM with Neon Serverless Functions.
+
+What is a Headless ORM?
+An ORM (Object-Relational Mapping) is a programming technique that converts data between incompatible systems. It maps objects from a relational database to objects in the programming language. A headless ORM is an ORM that doesn't require a full-fledged web server to run. It can be used in serverless functions to interact with the database.
+
+Let's get started by understanding the basics of Drizzle ORM and how to use it with Neon. If you have chosen to use Drizzle during setup, you can follow this guide to learn how to use it with Neon. If you haven't chosen to use Drizzle, you can still follow this guide to learn about Drizzle ORM and you can use the first-class extension to add Drizzle API to your PrismaClient which we will cover in this guide.
+
+## Defining Database Models
+
+Drizzle ORM uses a schema to define the database models. The schema is written in Drizzle Schema Language, which is a declarative language for defining database models. Here is an example of a Drizzle schema:
+
+```drizzle
+import { integer, pgEnum, pgTable, serial, uniqueIndex, varchar } from 'drizzle-orm/pg-core';
+
+// declaring enum in database
+export const popularityEnum = pgEnum('popularity', ['unknown', 'known', 'popular']);
+
+export const countries = pgTable('countries', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 256 }),
+}, (countries) => {
+  return {
+    nameIndex: uniqueIndex('name_idx').on(countries.name),
+  }
+});
+
+export const cities = pgTable('cities', {
+  id: serial('id').primaryKey(),
+  name: varchar('name', { length: 256 }),
+  countryId: integer('country_id').references(() => countries.id),
+  popularity: popularityEnum('popularity'),
+});
+```
+
+In this schema, we have two tables: `countries` and `cities`. The `countries` table has an `id` and `name` field. The `cities` table has an `id`, `name`, `countryId`, and `popularity` field. The `countryId` field is a foreign key to the `countries` table.
+
+## Drizzle Kit
+
+Drizzle Kit — is a CLI companion for automatic SQL migrations generation and rapid prototyping.
+
+Conceptually it’s very simple, you just declare a Drizzle ORM TypeScript schema and generate an SQL migration from it.
+
+Drizzle Kit is a CLI tool that helps you generate SQL migrations from your Drizzle ORM schema. You can use Drizzle Kit to generate SQL migrations for your database schema. Here is an example of how you can use Drizzle Kit to generate SQL migrations:
+
+To use it, you need to have a drizzle.config.ts file in the root of your project (comes with the kit by default).
+
+```bash
+npx drizzle-kit generate
+```
+
+This command will generate SQL migrations based on your Drizzle schema. You can then apply these migrations to your database to update the schema.
+
+## Migration
+
+Drizzle ORM provides a migration tool that helps you manage database schema changes. You can use the migration tool to generate SQL migrations, apply migrations to the database, and rollback migrations. Here is an example of how you can use the migration tool:
+
+```bash
+npx drizzle-kit migrate
+```
+
+This command will run the migration tool and apply any pending migrations to the database. You can also use the `rollback` command to rollback migrations:
+
+```bash
+npx drizzle-kit rollback
+```
+
+Db push and pull commands are also available to push and pull the database schema from the database.
+
+```bash
+npx drizzle-kit push
+npx drizzle-kit pull
+```
+
+## Using Drizzle ORM with Neon Serverless Functions
+
+You can use Drizzle ORM with Neon Serverless Functions to send queries to the database. The official documentation by Neon provides a detailed guide on how to use Drizzle ORM with Neon Serverless Functions. You can follow the [guide](https://neon.tech/docs/guides/drizzle-migrations) to learn how to use Drizzle ORM with Neon.
+
+## Drizzle ORM with PrismaClient
+Drizzle ORM is a SQL like ORM that provides a type-safe API for interacting with the database. It is built on top of Prisma and provides a similar API to Prisma. You can use Drizzle ORM to define database models, generate a client library, and send queries to the database.
+
+You can even use PrismaClient with Drizzle ORM to interact with the database. Here is an example of how you can use Drizzle ORM with PrismaClient:
+
+schema.prisma
+```prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator drizzle {
+  provider = "drizzle-prisma-generator"
+  output   = "./drizzle" // Where to put generated Drizle tables
+}
+
+// Rest of your Prisma schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_URL")
+}
+
+model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  name  String?
+}
+```
+
+In this schema, we have a `User` model with an `id`, `email`, and `name` field. We have defined two generators: `client` for Prisma Client and `drizzle` for Drizzle ORM. The `drizzle` generator will output the Drizzle tables to the `./drizzle` directory.
+
+You can then use the Drizzle tables in your code to send queries to the database. Here is an example of how you can use Drizzle tables with PrismaClient:
+
+```typescript
+import { PrismaClient } from '@prisma/client';
+import { drizzle } from 'drizzle-orm/prisma/pg';
+
+const prisma = new PrismaClient().$extends(drizzle());
+```
+
+run drizzle queries via `prisma.$drizzle`:
+
+```typescript
+import { User } from './drizzle';
+
+await prisma.$drizzle.insert().into(User).values({ email: 'sorenbs@drizzle.team', name: 'Søren' });
+const users = await prisma.$drizzle.select().from(User);
+```
+
+learn more about Drizzle ORM with PrismaClient in the [official documentation](https://orm.drizzle.team/docs/prisma).

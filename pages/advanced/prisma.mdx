@@ -1,0 +1,93 @@
+# Prisma ORM
+
+Prisma is a modern database toolkit that makes working with databases easy. It replaces traditional ORMs and simplifies database workflows. It is an open-source ORM for Node.js and Typescript, known for its ease of use and focus on type safety. It supports many databases, including Postgres, and provides a robust system for managing database schemas and migrations.
+
+This is a guide to using Prisma with Neon OSS Kit. The kit comes with Prisma pre-configured if you've chosen to use it during setup. If you have chosen to use Prisma, you can follow this guide to learn how to use it with Neon OSS Kit.
+
+Let's get started by understanding the basics of Prisma and how to use it with Neon.
+
+## Database Models
+
+Prisma uses a schema to define the database models. The schema is written in Prisma Schema Language, which is a declarative language for defining database models. Here is an example of a Prisma schema:
+
+```prisma
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  posts     Post[]
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  Int
+}
+```
+
+In this schema, we have two models: `User` and `Post`. The `User` model has an `id`, `name`, `email`, and `posts` field. The `Post` model has an `id`, `title`, `content`, `author`, and `authorId` field. The `author` field is a relation to the `User` model.
+
+## Generating Prisma Client
+
+Prisma generates a client library based on the schema that you define. The client library provides a type-safe API for interacting with the database. You can generate the Prisma client by running the following command:
+
+> Note: If you have chosen to use Prisma during setup, the Prisma client is already generated for you, and you don't need to run this command. But if you make changes to the schema, you need to regenerate the client.
+
+```bash
+npx prisma generate
+```
+
+
+### Use Prisma Client  with Edge Functions
+
+Vercel Edge Functions are serverless functions that run at the edge of the Vercel network. You can use Prisma Client in your Edge Functions to send queries to the database. Neon Serverless Functions are compatible with Prisma Client, and you can use it to interact with the database in your Edge Functions. Here is an example of how you can use Prisma Client in an Edge Function:
+
+app/api/edge/route.ts
+```typescript
+import { NextResponse } from 'next/server'
+import { PrismaClient } from '@prisma/client'
+import { PrismaNeon } from '@prisma/adapter-neon'
+import { Pool } from '@neondatabase/serverless'
+
+export const runtime = 'edge'
+
+export async function GET(request: Request) {
+  const neon = new Pool({ connectionString: process.env.POSTGRES_PRISMA_URL })
+  const adapter = new PrismaNeon(neon)
+  const prisma = new PrismaClient({ adapter })
+
+  const users = await prisma.user.findMany()
+
+  return NextResponse.json(users, { status: 200 })
+}
+```
+
+## Database Migrations
+
+Prisma provides a migration system that allows you to manage database schema changes. You can create, apply, and revert migrations using the Prisma CLI. Here are some common commands for managing migrations:
+
+Create a new migration:
+
+```bash
+npx prisma migrate dev --name <migration-name>
+```
+
+Apply pending migrations:
+
+```bash
+npx prisma migrate deploy
+```
+
+Revert the last migration:
+
+```bash
+npx prisma migrate reset
+```
+
+You can use these commands to manage database migrations in your Neon project.
+
+## Conclusion
+
+Prisma is a powerful ORM that simplifies database workflows and provides a type-safe API for interacting with the database. You can use Prisma with Neon OSS Kit to build modern web applications with ease. This guide has covered the basics of Prisma and how to use it with Neon. You can explore more features of Prisma by referring to the official [Prisma documentation](https://www.prisma.io/docs/orm).
