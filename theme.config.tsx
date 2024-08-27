@@ -11,6 +11,14 @@ const config: DocsThemeConfig = {
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta property="og:title" content="Neon OSS Kit" />
         <meta property="og:description" content="An open-source project starter kit with Next.js, Tailwind CSS, TypeScript, and more." />
+        <meta property="og:image" content="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3b36opy9d79z712f7na5.png" />
+        <meta property="og:url" content="https://neon-osskit.vercel.app/" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@rohittcodes" />
+        <meta name="twitter:creator" content="@rohittcodes" />
+        <meta name="twitter:title" content="Neon OSS Kit" />
+        <meta name="twitter:description" content="An open-source project starter kit with Next.js, Tailwind CSS, TypeScript, and more." />
+        <meta name="twitter:image" content="https://dev-to-uploads.s3.amazonaws.com/uploads/articles/3b36opy9d79z712f7na5.png" />
       </>
   ),
   logo: <span>Neon OSS Kit</span>,
