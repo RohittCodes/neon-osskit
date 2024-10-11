@@ -2,7 +2,7 @@
 
 Welcome to the official documentation for the Neon OSS Starter Kit. This documentation will guide you through the installation, setup, and usage of the Neon OSS Starter Kit.
 
-[**Live Documentation**](https://neon-osskit.vercel.app)
+[**Live Documentation**](https://osskit-neon.vercel.app)
 
 ![landing page](https://github.com/user-attachments/assets/2ab48727-6fa2-4bc6-9a29-dbad98d3e9a2)
 
